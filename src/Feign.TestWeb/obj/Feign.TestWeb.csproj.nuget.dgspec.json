@@ -1,0 +1,144 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\workspace\\github\\feign.net\\src\\Feign.TestWeb\\Feign.TestWeb.csproj": {}
+  },
+  "projects": {
+    "D:\\workspace\\github\\feign.net\\src\\Feign.TestWeb\\Feign.TestWeb.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\workspace\\github\\feign.net\\src\\Feign.TestWeb\\Feign.TestWeb.csproj",
+        "projectName": "Feign.TestWeb",
+        "projectPath": "D:\\workspace\\github\\feign.net\\src\\Feign.TestWeb\\Feign.TestWeb.csproj",
+        "packagesPath": "C:\\Users\\pokemon\\.nuget\\packages\\",
+        "outputPath": "D:\\workspace\\github\\feign.net\\src\\Feign.TestWeb\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\pokemon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.2"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "http://nuget.daixinkai.cn/nuget": {},
+          "http://nuget.odxd.com/nuget": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.2": {
+            "projectReferences": {
+              "D:\\workspace\\github\\feign.net\\src\\Feign\\Feign.csproj": {
+                "projectPath": "D:\\workspace\\github\\feign.net\\src\\Feign\\Feign.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.2": {
+          "dependencies": {
+            "Microsoft.AspNetCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.2.0, )",
+              "autoReferenced": true
+            },
+            "Microsoft.AspNetCore.Razor.Design": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.2.0, )",
+              "autoReferenced": true
+            },
+            "Steeltoe.Discovery.ClientCore": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      }
+    },
+    "D:\\workspace\\github\\feign.net\\src\\Feign\\Feign.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\workspace\\github\\feign.net\\src\\Feign\\Feign.csproj",
+        "projectName": "Feign",
+        "projectPath": "D:\\workspace\\github\\feign.net\\src\\Feign\\Feign.csproj",
+        "packagesPath": "C:\\Users\\pokemon\\.nuget\\packages\\",
+        "outputPath": "D:\\workspace\\github\\feign.net\\src\\Feign\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\pokemon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "http://nuget.daixinkai.cn/nuget": {},
+          "http://nuget.odxd.com/nuget": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.0": {
+          "dependencies": {
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "Steeltoe.Common.Http": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "System.Reflection.Emit": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      }
+    }
+  }
+}

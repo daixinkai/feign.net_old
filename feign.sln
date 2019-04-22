@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Feign", "src\Feign\Feign.csproj", "{DEA68D89-A4C9-47D2-9028-BA534859F18B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feign.TestWeb", "src\Feign.TestWeb\Feign.TestWeb.csproj", "{181131CE-31A2-4BE1-914E-0C1C41B36CFC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DEA68D89-A4C9-47D2-9028-BA534859F18B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA68D89-A4C9-47D2-9028-BA534859F18B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA68D89-A4C9-47D2-9028-BA534859F18B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA68D89-A4C9-47D2-9028-BA534859F18B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{181131CE-31A2-4BE1-914E-0C1C41B36CFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{181131CE-31A2-4BE1-914E-0C1C41B36CFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{181131CE-31A2-4BE1-914E-0C1C41B36CFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{181131CE-31A2-4BE1-914E-0C1C41B36CFC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {495B615B-D973-4B38-B0CA-3D904D259555}
+	EndGlobalSection
+EndGlobal

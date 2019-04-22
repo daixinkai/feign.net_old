@@ -1,0 +1,4 @@
+D:\workspace\github\feign.net\src\Feign\obj\Debug\net45\Feign.csprojAssemblyReference.cache
+D:\workspace\github\feign.net\src\Feign\obj\Debug\net45\Feign.csproj.CoreCompileInputs.cache
+D:\workspace\github\feign.net\src\Feign\obj\Debug\net45\Feign.AssemblyInfoInputs.cache
+D:\workspace\github\feign.net\src\Feign\obj\Debug\net45\Feign.AssemblyInfo.cs

@@ -1,0 +1,9 @@
+D:\workspace\github\feign.net\src\Feign\obj\Debug\netstandard2.0\Feign.csprojAssemblyReference.cache
+D:\workspace\github\feign.net\src\Feign\obj\Debug\netstandard2.0\Feign.csproj.CoreCompileInputs.cache
+D:\workspace\github\feign.net\src\Feign\obj\Debug\netstandard2.0\Feign.AssemblyInfoInputs.cache
+D:\workspace\github\feign.net\src\Feign\obj\Debug\netstandard2.0\Feign.AssemblyInfo.cs
+D:\workspace\github\feign.net\src\Feign\bin\Debug\netstandard2.0\Feign.deps.json
+D:\workspace\github\feign.net\src\Feign\bin\Debug\netstandard2.0\Feign.dll
+D:\workspace\github\feign.net\src\Feign\bin\Debug\netstandard2.0\Feign.pdb
+D:\workspace\github\feign.net\src\Feign\obj\Debug\netstandard2.0\Feign.dll
+D:\workspace\github\feign.net\src\Feign\obj\Debug\netstandard2.0\Feign.pdb

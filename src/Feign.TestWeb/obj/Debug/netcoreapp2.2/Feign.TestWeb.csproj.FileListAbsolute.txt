@@ -1,0 +1,17 @@
+D:\workspace\github\feign.net\src\Feign.TestWeb\bin\Debug\netcoreapp2.2\Feign.TestWeb.deps.json
+D:\workspace\github\feign.net\src\Feign.TestWeb\bin\Debug\netcoreapp2.2\Feign.TestWeb.runtimeconfig.json
+D:\workspace\github\feign.net\src\Feign.TestWeb\bin\Debug\netcoreapp2.2\Feign.TestWeb.runtimeconfig.dev.json
+D:\workspace\github\feign.net\src\Feign.TestWeb\bin\Debug\netcoreapp2.2\Feign.TestWeb.dll
+D:\workspace\github\feign.net\src\Feign.TestWeb\bin\Debug\netcoreapp2.2\Feign.TestWeb.pdb
+D:\workspace\github\feign.net\src\Feign.TestWeb\bin\Debug\netcoreapp2.2\Feign.dll
+D:\workspace\github\feign.net\src\Feign.TestWeb\bin\Debug\netcoreapp2.2\Feign.pdb
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.csprojAssemblyReference.cache
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.csproj.CoreCompileInputs.cache
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.RazorAssemblyInfo.cache
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.RazorAssemblyInfo.cs
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.AssemblyInfoInputs.cache
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.AssemblyInfo.cs
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.RazorTargetAssemblyInfo.cache
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.csproj.CopyComplete
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.dll
+D:\workspace\github\feign.net\src\Feign.TestWeb\obj\Debug\netcoreapp2.2\Feign.TestWeb.pdb
