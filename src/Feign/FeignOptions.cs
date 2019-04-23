@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Feign
 {
-    public sealed class RequestBodyAttribute : RequestParameterBaseAttribute
+    public class FeignOptions
     {
     }
 }

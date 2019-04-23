@@ -27,7 +27,7 @@ namespace Feign.TestWeb
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddDiscoveryClient(Configuration);
-            services.AddFeignClients();
+            services.AddFeignClients();//.AddDiscoveryClient();
 
         }
 

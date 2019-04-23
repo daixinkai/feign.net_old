@@ -12,11 +12,11 @@ namespace Microsoft.Extensions.DependencyInjection
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ServiceCollectionExtensions
     {
-        public static void AddFeignClients(this IServiceCollection services, IEnumerable<Assembly> assemblies)
+        public static IFeignBuilder AddFeignClients(this IServiceCollection services, IEnumerable<Assembly> assemblies)
         {
             if (assemblies == null || !assemblies.Any())
             {
-                return;
+                return FeignBuilder.Instance;
             }
             FeignClientTypeBuilder feignClientTypeBuilder = new FeignClientTypeBuilder();
             foreach (var assembly in assemblies)
@@ -24,16 +24,18 @@ namespace Microsoft.Extensions.DependencyInjection
                 AddFeignClients(feignClientTypeBuilder, services, assembly);
             }
             feignClientTypeBuilder.FinishBuild();
+            FeignBuilder.Instance.Services = services;
+            return FeignBuilder.Instance;
         }
 
-        public static void AddFeignClients(this IServiceCollection services, params Assembly[] assemblies)
+        public static IFeignBuilder AddFeignClients(this IServiceCollection services, params Assembly[] assemblies)
         {
-            AddFeignClients(services, assemblies?.AsEnumerable());
+            return AddFeignClients(services, assemblies?.AsEnumerable());
         }
 
-        public static void AddFeignClients(this IServiceCollection services)
+        public static IFeignBuilder AddFeignClients(this IServiceCollection services)
         {
-            AddFeignClients(services, Assembly.GetEntryAssembly());
+            return AddFeignClients(services, Assembly.GetEntryAssembly());
         }
 
         static void AddFeignClients(FeignClientTypeBuilder feignClientTypeBuilder, IServiceCollection services, Assembly assembly)

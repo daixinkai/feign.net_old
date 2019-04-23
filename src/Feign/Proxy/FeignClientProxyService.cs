@@ -1,5 +1,7 @@
-﻿using Feign.Internal;
-using Steeltoe.Common.Discovery;
+﻿using Feign.Discovery;
+using Feign.Internal;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -10,15 +12,15 @@ namespace Feign.Proxy
 {
     public abstract class FeignClientProxyService : IDisposable
     {
-        public FeignClientProxyService()
+        public FeignClientProxyService(IServiceDiscovery serviceDiscovery, IDistributedCache distributedCache, ILogger logger)
         {
-        }
-        public FeignClientProxyService(IDiscoveryClient discoveryClient)
-        {
-            DiscoveryHttpClientHandler discoveryHttpClientHandler = new DiscoveryHttpClientHandler(discoveryClient);
-            _httpClient = new HttpClient(discoveryHttpClientHandler);
-
-            string baseUrl = $"http://{ServiceId}";
+            ServiceDiscoveryHttpClientHandler serviceDiscoveryHttpClientHandler = new ServiceDiscoveryHttpClientHandler(serviceDiscovery, distributedCache, logger);
+            _httpClient = new HttpClient(serviceDiscoveryHttpClientHandler);
+            string baseUrl = ServiceId ?? "";
+            if (!baseUrl.StartsWith("http"))
+            {
+                baseUrl = $"http://{baseUrl}";
+            }
             if (!string.IsNullOrWhiteSpace(BaseUri))
             {
                 if (BaseUri.StartsWith("/"))
@@ -44,11 +46,6 @@ namespace Feign.Proxy
 
         string _baseUrl;
 
-        protected static string ReplacePathVariable(string uri, string name, string value)
-        {
-            name = "{" + name + "}";
-            return uri.Replace(name, value);
-        }
 
         private HttpClient _httpClient;
 
@@ -181,6 +178,22 @@ namespace Feign.Proxy
             return Newtonsoft.Json.JsonConvert.DeserializeObject<TResult>(await responseMessage.Content.ReadAsStringAsync());
         }
 
+        #endregion
+
+
+
+        #region PathVariable
+        protected static string ReplacePathVariable<T>(string uri, string name, T value)
+        {
+            return FeignClientUtils.ReplacePathVariable<T>(uri, name, value);
+        }
+        #endregion
+
+        #region RequestParam
+        protected static string ReplaceRequestParam<T>(string uri, string name, T value)
+        {
+            return FeignClientUtils.ReplaceRequestParam<T>(uri, name, value);
+        }
         #endregion
 
     }

@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Feign.Steeltoe\Feign.Steeltoe.csproj" />
     <ProjectReference Include="..\Feign\Feign.csproj" />
   </ItemGroup>
 

@@ -23,8 +23,9 @@ namespace Feign.Internal
 
         #endregion
 
-        static readonly MethodInfo _replacePathVariableMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.Name == "ReplacePathVariable");
+        static readonly MethodInfo _replacePathVariableMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplacePathVariable");
 
+        static readonly MethodInfo _replaceRequestParamMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplaceRequestParam");
 
         public void BuildMethod(MethodInfo method, MethodBuilder methodBuilder)
         {
@@ -58,15 +59,35 @@ namespace Feign.Internal
                     requestBodyParameterIndex = index;
                     continue;
                 }
-                string name = parameterInfo.IsDefined(typeof(PathVariableAttribute)) ? parameterInfo.GetCustomAttribute<PathVariableAttribute>().Name : parameterInfo.Name;
+                MethodInfo replaceValueMethod;
+                string name;
+                if (parameterInfo.IsDefined(typeof(RequestParamAttribute)))
+                {
+                    name = parameterInfo.GetCustomAttribute<RequestParamAttribute>().Name ?? parameterInfo.Name;
+                    replaceValueMethod = _replaceRequestParamMethod;
+                }
+                else
+                {
+                    name = parameterInfo.IsDefined(typeof(PathVariableAttribute)) ? parameterInfo.GetCustomAttribute<PathVariableAttribute>().Name : parameterInfo.Name;
+                    replaceValueMethod = _replacePathVariableMethod;
+                }
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    name = parameterInfo.Name;
+                }
+
                 iLGenerator.Emit(OpCodes.Ldstr, name);
                 iLGenerator.Emit(OpCodes.Stloc, local_OldValue);
                 iLGenerator.Emit(OpCodes.Ldloc, local_Uri);
                 iLGenerator.Emit(OpCodes.Ldloc, local_OldValue);
                 iLGenerator.Emit(OpCodes.Ldarg_S, index);
-                iLGenerator.Emit(OpCodes.Call, _replacePathVariableMethod);
+
+                replaceValueMethod = replaceValueMethod.MakeGenericMethod(parameterInfo.ParameterType);
+                iLGenerator.Emit(OpCodes.Call, replaceValueMethod);
                 iLGenerator.Emit(OpCodes.Stloc, local_Uri);
                 index++;
+
             }
 
 

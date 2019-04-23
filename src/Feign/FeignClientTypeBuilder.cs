@@ -1,7 +1,7 @@
-﻿using Feign.Internal;
+﻿using Feign.Discovery;
+using Feign.Internal;
 using Feign.Proxy;
 using Microsoft.Extensions.DependencyInjection;
-using Steeltoe.Common.Discovery;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,15 +75,22 @@ namespace Feign
 
         void BuildConstructor(TypeBuilder typeBuilder)
         {
-            ConstructorInfo baseConstructorInfo = typeof(FeignClientProxyService).GetConstructor(new Type[] { typeof(IDiscoveryClient) });
+            //ConstructorInfo baseConstructorInfo = typeof(FeignClientProxyService).GetConstructor(new Type[] { typeof(IServiceDiscovery) });
+            ConstructorInfo baseConstructorInfo = typeof(FeignClientProxyService).GetConstructors()[0];
+
+            var parameters = baseConstructorInfo.GetParameters();
+
             ConstructorBuilder constructorBuilder = typeBuilder.DefineConstructor(
                MethodAttributes.Public,
                CallingConventions.Standard,
-               new Type[] { typeof(IDiscoveryClient) });
+           parameters.Select(p => p.ParameterType).ToArray());
 
             ILGenerator constructorIlGenerator = constructorBuilder.GetILGenerator();
             constructorIlGenerator.Emit(OpCodes.Ldarg_0);
-            constructorIlGenerator.Emit(OpCodes.Ldarg_1);
+            for (int i = 1; i <= parameters.Length; i++)
+            {
+                constructorIlGenerator.Emit(OpCodes.Ldarg_S, i);
+            }
             constructorIlGenerator.Emit(OpCodes.Call, baseConstructorInfo);
             constructorIlGenerator.Emit(OpCodes.Ret);
         }

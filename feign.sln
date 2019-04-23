@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Feign", "src\Feign\Feign.csproj", "{DEA68D89-A4C9-47D2-9028-BA534859F18B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feign.TestWeb", "src\Feign.TestWeb\Feign.TestWeb.csproj", "{181131CE-31A2-4BE1-914E-0C1C41B36CFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Feign.TestWeb", "src\Feign.TestWeb\Feign.TestWeb.csproj", "{181131CE-31A2-4BE1-914E-0C1C41B36CFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feign.Steeltoe", "src\Feign.Steeltoe\Feign.Steeltoe.csproj", "{ABBA4E3D-8432-4ECD-BFB8-FA5479F14AC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{181131CE-31A2-4BE1-914E-0C1C41B36CFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{181131CE-31A2-4BE1-914E-0C1C41B36CFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{181131CE-31A2-4BE1-914E-0C1C41B36CFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABBA4E3D-8432-4ECD-BFB8-FA5479F14AC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABBA4E3D-8432-4ECD-BFB8-FA5479F14AC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABBA4E3D-8432-4ECD-BFB8-FA5479F14AC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABBA4E3D-8432-4ECD-BFB8-FA5479F14AC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

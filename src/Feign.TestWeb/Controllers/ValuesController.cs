@@ -21,7 +21,7 @@ namespace Feign.TestWeb.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<object>> Get(int id, [FromServices] ITestService testService)
         {
-            return await testService.GetValueAsync(id.ToString());
+            return await testService.GetValueAsync(id, "asdasd");
         }
 
         // POST api/values

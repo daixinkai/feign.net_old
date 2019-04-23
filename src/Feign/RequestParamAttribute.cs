@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Feign
 {
-    public sealed class PathVariableAttribute : RequestParameterBaseAttribute
+    public sealed class RequestParamAttribute : RequestParameterBaseAttribute
     {
-        public PathVariableAttribute()
+        public RequestParamAttribute()
         {
         }
-        public PathVariableAttribute(string name)
+        public RequestParamAttribute(string name)
         {
             Name = name;
         }
