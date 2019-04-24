@@ -11,7 +11,7 @@ namespace Feign.Discovery
 {
     public static class ServiceDiscoveryExtensions
     {
-        public static async Task<IList<IServiceInstance>> GetInstancesWithCacheAsync(this IServiceDiscovery serviceDiscovery, string serviceId, IDistributedCache distributedCache, string serviceInstancesKeyPrefix = "ServiceDiscovery-ServiceInstances-")
+        public static async Task<IList<IServiceInstance>> GetServiceInstancesWithCacheAsync(this IServiceDiscovery serviceDiscovery, string serviceId, IDistributedCache distributedCache, string serviceInstancesKeyPrefix = "ServiceDiscovery-ServiceInstances-")
         {
             // if distributed cache was provided, just make the call back to the provider
             if (distributedCache != null)
@@ -25,7 +25,7 @@ namespace Feign.Discovery
             }
 
             // cache not found or instances not found, call out to the provider
-            var instances = serviceDiscovery.GetInstances(serviceId);
+            var instances = serviceDiscovery.GetServiceInstances(serviceId);
             if (distributedCache != null)
             {
                 await distributedCache.SetAsync(serviceInstancesKeyPrefix + serviceId, SerializeForCache(MapToSerializable(instances)));
@@ -34,7 +34,7 @@ namespace Feign.Discovery
             return instances;
         }
 
-        public static IList<IServiceInstance> GetInstancesWithCache(this IServiceDiscovery serviceDiscovery, string serviceId, IDistributedCache distributedCache, string serviceInstancesKeyPrefix = "ServiceDiscovery-ServiceInstances-")
+        public static IList<IServiceInstance> GetServiceInstancesWithCache(this IServiceDiscovery serviceDiscovery, string serviceId, IDistributedCache distributedCache, string serviceInstancesKeyPrefix = "ServiceDiscovery-ServiceInstances-")
         {
             // if distributed cache was provided, just make the call back to the provider
             if (distributedCache != null)
@@ -48,7 +48,7 @@ namespace Feign.Discovery
             }
 
             // cache not found or instances not found, call out to the provider
-            var instances = serviceDiscovery.GetInstances(serviceId);
+            var instances = serviceDiscovery.GetServiceInstances(serviceId);
             if (distributedCache != null)
             {
                 distributedCache.Set(serviceInstancesKeyPrefix + serviceId, SerializeForCache(MapToSerializable(instances)));

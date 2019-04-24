@@ -17,7 +17,7 @@ namespace Feign.Discovery
 
         public IList<string> Services => _discoveryClient.Services;
 
-        public IList<IServiceInstance> GetInstances(string serviceId)
+        public IList<IServiceInstance> GetServiceInstances(string serviceId)
         {
             return _discoveryClient.GetInstances(serviceId).Select(s => new SteeltoeServiceInstance(s)).ToList<IServiceInstance>();
         }

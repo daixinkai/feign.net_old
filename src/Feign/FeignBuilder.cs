@@ -11,15 +11,18 @@ namespace Feign
 
         public FeignBuilder()
         {
-            Converters = new ConverterCollection();
-            Converters.AddConverter(new ObjectStringConverter());
+            FeignClientTypeBuilder = new FeignClientTypeBuilder();
         }
 
         public static readonly FeignBuilder Instance = new FeignBuilder();
 
-        public ConverterCollection Converters { get; }
+        public ConverterCollection Converters { get { return Options?.Converters; } }
+
+        public FeignOptions Options { get; set; }
 
         public IServiceCollection Services { get; set; }
+
+        public FeignClientTypeBuilder FeignClientTypeBuilder { get; }
 
     }
 }

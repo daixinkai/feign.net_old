@@ -12,20 +12,11 @@ namespace Feign.Internal
     class EmitMethodBuilder : IMethodBuilder
     {
 
-        //static readonly MethodInfo _stringReplaceMethod = typeof(String).GetMethod("Replace", new Type[] { typeof(string), typeof(string) });
-
-        #region http method
-        static readonly MethodInfo _getMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).FirstOrDefault(o => o.Name == "Get");
-        static readonly MethodInfo _getAsyncMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).FirstOrDefault(o => o.Name == "GetAsync");
-
-        static readonly MethodInfo _postMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).FirstOrDefault(o => o.Name == "Post");
-        static readonly MethodInfo _postAsyncMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).FirstOrDefault(o => o.Name == "PostAsync");
-
-        #endregion
-
         static readonly MethodInfo _replacePathVariableMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplacePathVariable");
 
         static readonly MethodInfo _replaceRequestParamMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplaceRequestParam");
+
+        static readonly MethodInfo _replaceRequestQueryMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplaceRequestQuery");
 
         public void BuildMethod(MethodInfo method, MethodBuilder methodBuilder)
         {
@@ -37,7 +28,6 @@ namespace Feign.Internal
 
             LocalBuilder local_Uri = iLGenerator.DeclareLocal(typeof(string));
             LocalBuilder local_OldValue = iLGenerator.DeclareLocal(typeof(string));
-            LocalBuilder local_Result = iLGenerator.DeclareLocal(method.ReturnType);
 
 
             iLGenerator.Emit(OpCodes.Ldstr, uri);
@@ -66,6 +56,11 @@ namespace Feign.Internal
                     name = parameterInfo.GetCustomAttribute<RequestParamAttribute>().Name ?? parameterInfo.Name;
                     replaceValueMethod = _replaceRequestParamMethod;
                 }
+                else if (parameterInfo.IsDefined(typeof(RequestQueryAttribute)))
+                {
+                    name = parameterInfo.Name;
+                    replaceValueMethod = _replaceRequestQueryMethod;
+                }
                 else
                 {
                     name = parameterInfo.IsDefined(typeof(PathVariableAttribute)) ? parameterInfo.GetCustomAttribute<PathVariableAttribute>().Name : parameterInfo.Name;
@@ -91,20 +86,26 @@ namespace Feign.Internal
             }
 
 
-            Type returnType = GetReturnType(method);
-
             var invokeMethod = GetInvokeMethod(method, requestMapping);
 
             iLGenerator.Emit(OpCodes.Ldarg_0);
             iLGenerator.Emit(OpCodes.Ldloc, local_Uri);
-            if (requestBodyParameter != null)
+            if (NeedRequestBody(invokeMethod))
             {
-                iLGenerator.Emit(OpCodes.Ldarg_S, requestBodyParameterIndex);
+                if (requestBodyParameter != null)
+                {
+                    iLGenerator.Emit(OpCodes.Ldarg_S, requestBodyParameterIndex);
+                }
+                else
+                {
+                    iLGenerator.Emit(OpCodes.Ldnull);
+                }
             }
-            iLGenerator.Emit(OpCodes.Call, invokeMethod);
-            iLGenerator.Emit(OpCodes.Stloc, local_Result);
-            iLGenerator.Emit(OpCodes.Ldloc, local_Result);
 
+            iLGenerator.Emit(OpCodes.Call, invokeMethod);
+            //LocalBuilder local_Result = iLGenerator.DeclareLocal(method.ReturnType);
+            //iLGenerator.Emit(OpCodes.Stloc, local_Result);
+            //iLGenerator.Emit(OpCodes.Ldloc, local_Result);
 
             iLGenerator.Emit(OpCodes.Ret);
         }
@@ -125,10 +126,16 @@ namespace Feign.Internal
             switch (requestMapping.Method?.ToUpper() ?? "")
             {
                 case "GET":
-                    httpClientMethod = async ? _getAsyncMethod : _getMethod;
+                    httpClientMethod = async ? FeignClientProxyService.HTTP_GET_ASYNC_METHOD : FeignClientProxyService.HTTP_GET_METHOD;
                     break;
                 case "POST":
-                    httpClientMethod = async ? _postAsyncMethod : _postMethod;
+                    httpClientMethod = async ? FeignClientProxyService.HTTP_POST_ASYNC_METHOD : FeignClientProxyService.HTTP_POST_METHOD;
+                    break;
+                case "PUT":
+                    httpClientMethod = async ? FeignClientProxyService.HTTP_PUT_ASYNC_METHOD : FeignClientProxyService.HTTP_PUT_METHOD;
+                    break;
+                case "DELETE":
+                    httpClientMethod = async ? FeignClientProxyService.HTTP_DELETE_ASYNC_METHOD : FeignClientProxyService.HTTP_DELETE_METHOD;
                     break;
                 default:
                     throw new ArgumentException("httpMethod error");
@@ -140,6 +147,10 @@ namespace Feign.Internal
             return httpClientMethod.MakeGenericMethod(returnType);
         }
 
+        bool NeedRequestBody(MethodInfo method)
+        {
+            return method.GetParameters().Length == 2;
+        }
 
         bool IsTaskMethod(MethodInfo method)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -33,6 +34,49 @@ namespace Feign.Internal
         public static string ReplaceRequestParam<T>(string uri, string name, T value)
         {
             return ReplaceRequestParam(uri, name, ConvertValue<T, string>(value, true));
+        }
+        #endregion
+
+        #region RequestQuery
+        public static string ReplaceRequestQuery(string uri, string name, string value)
+        {
+            if (uri.IndexOf("?") >= 0)
+            {
+                return uri + $"&{name}={value}";
+            }
+            else
+            {
+                return uri + $"?{name}={value}";
+            }
+        }
+        public static string ReplaceRequestQuery<T>(string uri, string name, T value)
+        {
+            var typeCode = Type.GetTypeCode(typeof(T));
+            if (typeCode == TypeCode.Object)
+            {
+                if (value == null)
+                {
+                    return uri;
+                }
+                //TODO: ReplaceRequestQuery
+                //foreach (var property in value.GetType().GetProperties())
+                //{
+                //    object propertyValue = property.GetValue(value);
+                //    if (propertyValue == null)
+                //    {
+                //        continue;
+                //    }
+                //    if (propertyValue is IEnumerable&&propertyValue)
+                //    {
+
+                //    }
+                //}
+                return uri;
+            }
+            else
+            {
+                return ReplaceRequestQuery(uri, name, ConvertValue<T, string>(value, true));
+            }
         }
         #endregion
 

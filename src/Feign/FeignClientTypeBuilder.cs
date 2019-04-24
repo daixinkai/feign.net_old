@@ -74,8 +74,7 @@ namespace Feign
 
 
         void BuildConstructor(TypeBuilder typeBuilder)
-        {
-            //ConstructorInfo baseConstructorInfo = typeof(FeignClientProxyService).GetConstructor(new Type[] { typeof(IServiceDiscovery) });
+        {            
             ConstructorInfo baseConstructorInfo = typeof(FeignClientProxyService).GetConstructors()[0];
 
             var parameters = baseConstructorInfo.GetParameters();
@@ -95,34 +94,37 @@ namespace Feign
             constructorIlGenerator.Emit(OpCodes.Ret);
         }
 
-        void BuildServiceIdProperty(TypeBuilder typeBuilder, Type interfaceType)
+        void BuildReadOnlyProperty(TypeBuilder typeBuilder, Type interfaceType, string propertyName, string propertyValue)
         {
-            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty("ServiceId", PropertyAttributes.None, typeof(string), Type.EmptyTypes);
-            MethodBuilder propertyGet = typeBuilder.DefineMethod("get_ServiceId", MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual, typeof(string), Type.EmptyTypes);
+            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyName, PropertyAttributes.None, typeof(string), Type.EmptyTypes);
+
+            //if (property.CanRead)
+            //{
+            MethodBuilder propertyGet = typeBuilder.DefineMethod("get_" + propertyName, MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual, typeof(string), Type.EmptyTypes);
             ILGenerator iLGenerator = propertyGet.GetILGenerator();
-            iLGenerator.Emit(OpCodes.Ldstr, interfaceType.GetCustomAttribute<FeignClientAttribute>().Name);
+            iLGenerator.Emit(OpCodes.Ldstr, propertyValue);
             iLGenerator.Emit(OpCodes.Ret);
             propertyBuilder.SetGetMethod(propertyGet);
+            //}
+            //if (property.CanWrite)
+            //{
+            //    MethodBuilder propertySet = typeBuilder.DefineMethod("set_" + propertyName, MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual, typeof(string), Type.EmptyTypes);
+            //    ILGenerator iLGenerator = propertySet.GetILGenerator();
+            //    iLGenerator.Emit(OpCodes.Ldstr, interfaceType.GetCustomAttribute<FeignClientAttribute>().Name);
+            //    iLGenerator.Emit(OpCodes.Ret);
+            //    propertyBuilder.SetSetMethod(propertySet);
+            //}
+
         }
 
+        void BuildServiceIdProperty(TypeBuilder typeBuilder, Type interfaceType)
+        {
+            BuildReadOnlyProperty(typeBuilder, interfaceType, "ServiceId", interfaceType.GetCustomAttribute<FeignClientAttribute>().Name);
+        }
 
         void BuildBaseUriProperty(TypeBuilder typeBuilder, Type interfaceType)
         {
-            if (!interfaceType.IsDefined(typeof(RequestMappingAttribute)))
-            {
-                return;
-            }
-            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty("BaseUri", PropertyAttributes.None, typeof(string), Type.EmptyTypes);
-            MethodBuilder propertyGet = typeBuilder.DefineMethod("get_BaseUri", MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual, typeof(string), Type.EmptyTypes);
-            ILGenerator iLGenerator = propertyGet.GetILGenerator();
-            iLGenerator.Emit(OpCodes.Ldstr, interfaceType.GetCustomAttribute<RequestMappingAttribute>().Value);
-            iLGenerator.Emit(OpCodes.Ret);
-            propertyBuilder.SetGetMethod(propertyGet);
-        }
-
-        string GetServiceId(Type interfaceType)
-        {
-            return interfaceType.GetCustomAttribute<FeignClientAttribute>().Name;
+            BuildReadOnlyProperty(typeBuilder, interfaceType, "BaseUri", interfaceType.GetCustomAttribute<RequestMappingAttribute>().Value);
         }
 
         MethodBuilder CreateMethodBuilder(TypeBuilder typeBuilder, MethodInfo method)

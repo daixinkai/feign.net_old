@@ -8,6 +8,6 @@ namespace Feign.Discovery
     {
         IList<string> Services { get; }
 
-        IList<IServiceInstance> GetInstances(string serviceId);
+        IList<IServiceInstance> GetServiceInstances(string serviceId);
     }
 }

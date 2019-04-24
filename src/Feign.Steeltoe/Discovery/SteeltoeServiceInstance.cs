@@ -21,5 +21,7 @@ namespace Feign.Discovery
         public int Port => _serviceInstance.Port;
 
         public Uri Uri => _serviceInstance.Uri;
+
+
     }
 }

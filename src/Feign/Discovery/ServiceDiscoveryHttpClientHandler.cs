@@ -51,7 +51,11 @@ namespace Feign.Discovery
 
         Uri LookupService(Uri uri)
         {
-            IList<IServiceInstance> services = _serviceDiscovery?.GetInstancesWithCache(uri.Host, _distributedCache);
+            if (_serviceDiscovery == null)
+            {
+                return uri;
+            }
+            IList<IServiceInstance> services = _serviceDiscovery.GetServiceInstancesWithCache(uri.Host, _distributedCache);
             return _serviceResolve.ResolveService(uri, services);
         }
 
