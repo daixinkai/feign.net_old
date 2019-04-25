@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
-namespace Feign.Internal
+namespace Feign.Reflection
 {
     internal interface IMethodBuilder
     {

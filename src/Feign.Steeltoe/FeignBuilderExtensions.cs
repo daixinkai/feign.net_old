@@ -14,8 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IFeignBuilder AddDiscoveryClient(this IFeignBuilder feignBuilder)
         {
-            feignBuilder.Services.TryAddSingleton<IServiceDiscovery, SteeltoeServiceDiscovery>();
-            return feignBuilder;
+            return feignBuilder.AddServiceDiscovery<SteeltoeServiceDiscovery>();
         }
     }
 }

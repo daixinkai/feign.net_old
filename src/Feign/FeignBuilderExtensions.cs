@@ -1,5 +1,7 @@
 ﻿using Feign;
+using Feign.Discovery;
 using Feign.Formatting;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,5 +17,18 @@ namespace Microsoft.Extensions.DependencyInjection
             feignBuilder.Converters.AddConverter(converter);
             return feignBuilder;
         }
+
+        public static IFeignBuilder AddServiceDiscovery(this IFeignBuilder feignBuilder, IServiceDiscovery serviceDiscovery)
+        {
+            feignBuilder.Services.TryAddSingleton(serviceDiscovery);
+            return feignBuilder;
+        }
+
+        public static IFeignBuilder AddServiceDiscovery<T>(this IFeignBuilder feignBuilder) where T : class, IServiceDiscovery
+        {
+            feignBuilder.Services.TryAddSingleton<IServiceDiscovery, T>();
+            return feignBuilder;
+        }
+
     }
 }

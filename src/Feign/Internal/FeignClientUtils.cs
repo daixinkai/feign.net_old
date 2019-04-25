@@ -81,7 +81,7 @@ namespace Feign.Internal
         #endregion
 
 
-        static TResult ConvertValue<TSource, TResult>(TSource value, bool useDefault)
+        public static TResult ConvertValue<TSource, TResult>(TSource value, bool useDefault)
         {
             var converter = FeignBuilder.Instance.Converters.FindConverter<TSource, TResult>();
             if (converter == null)

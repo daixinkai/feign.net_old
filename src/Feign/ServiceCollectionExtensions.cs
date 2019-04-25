@@ -1,4 +1,5 @@
 ﻿using Feign;
+using Feign.Proxy;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     AddFeignClients(FeignBuilder.Instance.FeignClientTypeBuilder, services, assembly, options.Lifetime);
                 }
             }
+            services.TryAddSingleton(options.FeignClientPipeline);
             FeignBuilder.Instance.FeignClientTypeBuilder.FinishBuild();
             return FeignBuilder.Instance;
         }

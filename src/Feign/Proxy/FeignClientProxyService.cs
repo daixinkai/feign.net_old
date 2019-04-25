@@ -12,16 +12,18 @@ using System.Threading.Tasks;
 
 namespace Feign.Proxy
 {
-    public abstract class FeignClientProxyService : IDisposable
+    public abstract class FeignClientProxyService : IFeignClientProxy, IDisposable
     {
-        ILogger _logger;
-        public FeignClientProxyService(IServiceDiscovery serviceDiscovery, IDistributedCache distributedCache, ILoggerFactory loggerFactory)
+
+        public FeignClientProxyService(IServiceDiscovery serviceDiscovery, IFeignClientPipelineBuilder feignClientPipeline, IDistributedCache distributedCache, ILoggerFactory loggerFactory)
         {
             //_logger = loggerFactory?.CreateLogger(this.GetType());
             _logger = loggerFactory?.CreateLogger(typeof(FeignClientProxyService));
-            ServiceDiscoveryHttpClientHandler serviceDiscoveryHttpClientHandler = new ServiceDiscoveryHttpClientHandler(serviceDiscovery, distributedCache, _logger);
+            ServiceDiscoveryHttpClientHandler serviceDiscoveryHttpClientHandler = new ServiceDiscoveryHttpClientHandler(serviceDiscovery, this, feignClientPipeline, distributedCache, _logger);
+            serviceDiscoveryHttpClientHandler.ShouldResolveService = string.IsNullOrWhiteSpace(Url);
+            serviceDiscoveryHttpClientHandler.AllowAutoRedirect = false;
             _httpClient = new HttpClient(serviceDiscoveryHttpClientHandler);
-            string baseUrl = ServiceId ?? "";
+            string baseUrl = serviceDiscoveryHttpClientHandler.ShouldResolveService ? ServiceId ?? "" : Url;
             if (!baseUrl.StartsWith("http"))
             {
                 baseUrl = $"http://{baseUrl}";
@@ -53,10 +55,13 @@ namespace Feign.Proxy
 
         public virtual string BaseUri { get { return null; } }
 
+        public virtual string Url { get { return null; } }
+
         string _baseUrl;
 
+        ILogger _logger;
 
-        private HttpClient _httpClient;
+        HttpClient _httpClient;
 
         protected HttpClient HttpClient
         {
@@ -295,5 +300,6 @@ namespace Feign.Proxy
             return FeignClientUtils.ReplaceRequestQuery<T>(uri, name, value);
         }
         #endregion
+
     }
 }

@@ -33,9 +33,22 @@ namespace Feign.TestWeb
             services.AddFeignClients(options =>
             {
                 options.Lifetime = ServiceLifetime.Scoped;
+                options.FeignClientPipeline.BuildingRequest += FeignClientPipeline_BuildingRequest;
+                options.FeignClientPipeline.SendingRequest += FeignClientPipeline_SendingRequest;
             })
             //.AddDiscoveryClient();
             ;
+        }
+
+        private void FeignClientPipeline_BuildingRequest(object sender, Proxy.BuildingRequestEventArgs e)
+        {
+            e.Headers["Authorization"] = "test asdasd";
+            e.Headers["Accept-Encoding"] = "gzip, deflate, br";
+        }
+
+        private void FeignClientPipeline_SendingRequest(object sender, Proxy.SendingRequestEventArgs e)
+        {
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

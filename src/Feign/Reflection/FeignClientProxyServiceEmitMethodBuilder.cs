@@ -7,9 +7,9 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Feign.Internal
+namespace Feign.Reflection
 {
-    class EmitMethodBuilder : IMethodBuilder
+    class FeignClientProxyServiceEmitMethodBuilder : IMethodBuilder
     {
 
         static readonly MethodInfo _replacePathVariableMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplacePathVariable");
@@ -22,7 +22,7 @@ namespace Feign.Internal
         {
             ILGenerator iLGenerator = methodBuilder.GetILGenerator();
 
-            RequestMappingAttribute requestMapping = method.GetCustomAttribute<RequestMappingAttribute>();
+            RequestMappingBaseAttribute requestMapping = method.GetCustomAttribute<RequestMappingBaseAttribute>();
 
             string uri = requestMapping.Value;
 
@@ -110,7 +110,7 @@ namespace Feign.Internal
             iLGenerator.Emit(OpCodes.Ret);
         }
 
-        MethodInfo GetInvokeMethod(MethodInfo method, RequestMappingAttribute requestMapping)
+        MethodInfo GetInvokeMethod(MethodInfo method, RequestMappingBaseAttribute requestMapping)
         {
             Type returnType = GetReturnType(method);
             if (IsTaskMethod(method))
@@ -120,10 +120,10 @@ namespace Feign.Internal
             return GetInvokeMethod(requestMapping, returnType, false);
         }
 
-        MethodInfo GetInvokeMethod(RequestMappingAttribute requestMapping, Type returnType, bool async)
+        MethodInfo GetInvokeMethod(RequestMappingBaseAttribute requestMapping, Type returnType, bool async)
         {
             MethodInfo httpClientMethod;
-            switch (requestMapping.Method?.ToUpper() ?? "")
+            switch (requestMapping.GetMethod()?.ToUpper() ?? "")
             {
                 case "GET":
                     httpClientMethod = async ? FeignClientProxyService.HTTP_GET_ASYNC_METHOD : FeignClientProxyService.HTTP_GET_METHOD;

@@ -1,6 +1,7 @@
 ﻿using Feign.Discovery;
 using Feign.Internal;
 using Feign.Proxy;
+using Feign.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -17,30 +18,13 @@ namespace Feign
         {
             _guid = Guid.NewGuid().ToString("N").ToUpper();
             _suffix = "_Proxy_" + _guid;
-            _methodBuilder = new EmitMethodBuilder();
+            _methodBuilder = new FeignClientProxyServiceEmitMethodBuilder();
         }
 
         string _guid;
         string _suffix;
 
-        AssemblyBuilder _assemblyBuilder;
-        ModuleBuilder _moduleBuilder;
         IMethodBuilder _methodBuilder;
-        void EnsureAssemblyBuilder()
-        {
-            if (_assemblyBuilder == null)
-            {
-                _assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(_guid), AssemblyBuilderAccess.Run);
-            }
-        }
-        void EnsureModuleBuilder()
-        {
-            EnsureAssemblyBuilder();
-            if (_moduleBuilder == null)
-            {
-                _moduleBuilder = _assemblyBuilder.DefineDynamicModule("MainModule");
-            }
-        }
 
         public Type BuildType(Type interfaceType)
         {
@@ -49,15 +33,17 @@ namespace Feign
                 return null;
             }
             TypeBuilder typeBuilder = CreateTypeBuilder(interfaceType.FullName + _suffix, typeof(FeignClientProxyService));
+
             BuildConstructor(typeBuilder);
             BuildServiceIdProperty(typeBuilder, interfaceType);
             BuildBaseUriProperty(typeBuilder, interfaceType);
+            BuildUrlProperty(typeBuilder, interfaceType);
             typeBuilder.AddInterfaceImplementation(interfaceType);
             foreach (var method in interfaceType.GetMethods())
             {
                 MethodBuilder methodBuilder = CreateMethodBuilder(typeBuilder, method);
                 //build body
-                if (!method.IsDefined(typeof(RequestMappingAttribute)))
+                if (!method.IsDefined(typeof(RequestMappingBaseAttribute)))
                 {
                     ILGenerator iLGenerator = methodBuilder.GetILGenerator();
                     iLGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(Type.EmptyTypes));
@@ -74,7 +60,7 @@ namespace Feign
 
 
         void BuildConstructor(TypeBuilder typeBuilder)
-        {            
+        {
             ConstructorInfo baseConstructorInfo = typeof(FeignClientProxyService).GetConstructors()[0];
 
             var parameters = baseConstructorInfo.GetParameters();
@@ -127,6 +113,14 @@ namespace Feign
             BuildReadOnlyProperty(typeBuilder, interfaceType, "BaseUri", interfaceType.GetCustomAttribute<RequestMappingAttribute>().Value);
         }
 
+        void BuildUrlProperty(TypeBuilder typeBuilder, Type interfaceType)
+        {
+            if (interfaceType.GetCustomAttribute<FeignClientAttribute>().Url != null)
+            {
+                BuildReadOnlyProperty(typeBuilder, interfaceType, "Url", interfaceType.GetCustomAttribute<FeignClientAttribute>().Url);
+            }
+        }
+
         MethodBuilder CreateMethodBuilder(TypeBuilder typeBuilder, MethodInfo method)
         {
             MethodAttributes methodAttributes;
@@ -151,9 +145,7 @@ namespace Feign
 
         private TypeBuilder CreateTypeBuilder(string typeName, Type parentType)
         {
-            EnsureModuleBuilder();
-
-            return _moduleBuilder.DefineType(typeName,
+            return DynamicAssembly.ModuleBuilder.DefineType(typeName,
                           TypeAttributes.Public |
                           TypeAttributes.Class |
                           TypeAttributes.AutoClass |

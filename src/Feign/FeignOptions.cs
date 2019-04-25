@@ -1,4 +1,5 @@
 ﻿using Feign.Formatting;
+using Feign.Proxy;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Feign
             Converters.AddConverter(new ObjectStringConverter());
             Assemblies = new List<Assembly>();
             Lifetime = ServiceLifetime.Transient;
+            FeignClientPipeline = new FeignClientPipelineBuilder();
         }
         public ConverterCollection Converters { get; }
         public IList<Assembly> Assemblies { get; }
@@ -22,5 +24,7 @@ namespace Feign
         /// default <see cref="ServiceLifetime.Transient"/>
         /// </summary>
         public ServiceLifetime Lifetime { get; set; }
+
+        public IFeignClientPipelineBuilder FeignClientPipeline { get; }
     }
 }
