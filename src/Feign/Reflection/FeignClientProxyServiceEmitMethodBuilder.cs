@@ -20,6 +20,7 @@ namespace Feign.Reflection
 
         public void BuildMethod(MethodInfo method, MethodBuilder methodBuilder)
         {
+
             ILGenerator iLGenerator = methodBuilder.GetILGenerator();
 
             RequestMappingBaseAttribute requestMapping = method.GetCustomAttribute<RequestMappingBaseAttribute>();
@@ -103,11 +104,18 @@ namespace Feign.Reflection
             }
 
             iLGenerator.Emit(OpCodes.Call, invokeMethod);
-            //LocalBuilder local_Result = iLGenerator.DeclareLocal(method.ReturnType);
-            //iLGenerator.Emit(OpCodes.Stloc, local_Result);
-            //iLGenerator.Emit(OpCodes.Ldloc, local_Result);
+
+
+            if (method.ReturnType == null || method.ReturnType == typeof(void))
+            {
+                LocalBuilder local_Result = iLGenerator.DeclareLocal(invokeMethod.ReturnType);
+                iLGenerator.Emit(OpCodes.Stloc, local_Result);
+                iLGenerator.Emit(OpCodes.Ldloc, local_Result);
+                iLGenerator.Emit(OpCodes.Pop);
+            }
 
             iLGenerator.Emit(OpCodes.Ret);
+
         }
 
         MethodInfo GetInvokeMethod(MethodInfo method, RequestMappingBaseAttribute requestMapping)
@@ -140,7 +148,7 @@ namespace Feign.Reflection
                 default:
                     throw new ArgumentException("httpMethod error");
             }
-            if (returnType == null)
+            if (returnType == null || returnType == typeof(void))
             {
                 return httpClientMethod.MakeGenericMethod(typeof(Newtonsoft.Json.Linq.JObject));
             }

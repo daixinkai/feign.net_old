@@ -16,7 +16,7 @@ namespace Feign
             Converters.AddConverter(new ObjectStringConverter());
             Assemblies = new List<Assembly>();
             Lifetime = ServiceLifetime.Transient;
-            FeignClientPipeline = new FeignClientPipelineBuilder();
+            FeignClientPipeline = new GlobalFeignClientPipelineBuilder();
         }
         public ConverterCollection Converters { get; }
         public IList<Assembly> Assemblies { get; }
@@ -25,6 +25,6 @@ namespace Feign
         /// </summary>
         public ServiceLifetime Lifetime { get; set; }
 
-        public IFeignClientPipelineBuilder FeignClientPipeline { get; }
+        public IGlobalFeignClientPipelineBuilder FeignClientPipeline { get; }
     }
 }

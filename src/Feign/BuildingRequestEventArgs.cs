@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Feign.Proxy
+namespace Feign
 {
     public sealed class BuildingRequestEventArgs : EventArgs
     {
@@ -15,6 +15,6 @@ namespace Feign.Proxy
         public string Method { get; }
         public Uri RequestUri { get; set; }
         public IDictionary<string, string> Headers { get; }
-        public IFeignClientProxy FeignClientProxy { get; set; }
+        public IFeignClient FeignClient { get; set; }
     }
 }

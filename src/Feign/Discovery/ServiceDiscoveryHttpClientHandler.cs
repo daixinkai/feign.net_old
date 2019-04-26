@@ -16,16 +16,16 @@ namespace Feign.Discovery
         private IServiceResolve _serviceResolve;
         private IServiceDiscovery _serviceDiscovery;
         private IDistributedCache _distributedCache;
-        private FeignClientPipelineBuilder _feignClientPipeline;
-        private IFeignClientProxy _feignClientProxy;
+        private GlobalFeignClientPipelineBuilder _globalFeignClientPipeline;
+        private IFeignClient _feignClient;
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceDiscoveryHttpClientHandler"/> class.
         /// </summary>
-        public ServiceDiscoveryHttpClientHandler(IServiceDiscovery serviceDiscovery, IFeignClientProxy feignClientProxy, IFeignClientPipelineBuilder feignClientPipeline, IDistributedCache distributedCache, ILogger logger)
+        public ServiceDiscoveryHttpClientHandler(IServiceDiscovery serviceDiscovery, IFeignClient feignClient, IGlobalFeignClientPipelineBuilder globalFeignClientPipeline, IDistributedCache distributedCache, ILogger logger)
         {
             _serviceResolve = new RandomServiceResolve(logger);
-            _feignClientProxy = feignClientProxy;
-            _feignClientPipeline = feignClientPipeline as FeignClientPipelineBuilder;
+            _feignClient = feignClient;
+            _globalFeignClientPipeline = globalFeignClientPipeline as GlobalFeignClientPipelineBuilder;
             _logger = logger;
             _serviceDiscovery = serviceDiscovery;
             _distributedCache = distributedCache;
@@ -41,27 +41,36 @@ namespace Feign.Discovery
             var current = request.RequestUri;
             try
             {
-                var buildingArgs = _feignClientPipeline?.OnBuildingRequest(_feignClientProxy, request.Method.ToString(), request.RequestUri, new Dictionary<string, string>());
-                if (buildingArgs != null)
+
+                BuildingRequestEventArgs buildingArgs = new BuildingRequestEventArgs(request.Method.ToString(), request.RequestUri, new Dictionary<string, string>())
                 {
-                    //request.Method = new HttpMethod(buildingArgs.Method);
-                    request.RequestUri = buildingArgs.RequestUri;
-                    if (buildingArgs.Headers != null && buildingArgs.Headers.Count > 0)
+                    FeignClient = _feignClient
+                };
+
+                #region BuildingRequest
+                _globalFeignClientPipeline?.GetServicePipeline(_feignClient.ServiceId)?.OnBuildingRequest(_feignClient, buildingArgs);
+                _globalFeignClientPipeline?.OnBuildingRequest(_feignClient, buildingArgs);
+                //request.Method = new HttpMethod(buildingArgs.Method);
+                request.RequestUri = buildingArgs.RequestUri;
+                if (buildingArgs.Headers != null && buildingArgs.Headers.Count > 0)
+                {
+                    foreach (var item in buildingArgs.Headers)
                     {
-                        foreach (var item in buildingArgs.Headers)
-                        {
-                            request.Headers.TryAddWithoutValidation(item.Key, item.Value);
-                        }
+                        request.Headers.TryAddWithoutValidation(item.Key, item.Value);
                     }
                 }
+                #endregion
                 request.RequestUri = LookupService(request.RequestUri);
-                var sendingArgs = _feignClientPipeline?.OnSendingRequest(_feignClientProxy, request);
-                var sendingRequest = request;
-                if (sendingArgs != null)
+                #region SendingRequest
+                SendingRequestEventArgs sendingArgs = new SendingRequestEventArgs(request)
                 {
-                    sendingRequest = sendingArgs.RequestMessage;
-                }
-                return await base.SendAsync(sendingRequest, cancellationToken);
+                    FeignClient = _feignClient
+                };
+                _globalFeignClientPipeline?.GetServicePipeline(_feignClient.ServiceId)?.OnSendingRequest(_feignClient, sendingArgs);
+                _globalFeignClientPipeline?.OnSendingRequest(_feignClient, sendingArgs);
+                request = sendingArgs.RequestMessage;
+                #endregion
+                return await base.SendAsync(request, cancellationToken);
             }
             catch (Exception e)
             {

@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace Feign.Proxy
 {
-    public abstract class FeignClientProxyService : IFeignClientProxy, IDisposable
+    public abstract class FeignClientProxyService : IFeignClient, IDisposable
     {
 
-        public FeignClientProxyService(IServiceDiscovery serviceDiscovery, IFeignClientPipelineBuilder feignClientPipeline, IDistributedCache distributedCache, ILoggerFactory loggerFactory)
+        public FeignClientProxyService(IServiceDiscovery serviceDiscovery, IGlobalFeignClientPipelineBuilder globalFeignClientPipeline, IDistributedCache distributedCache, ILoggerFactory loggerFactory)
         {
             //_logger = loggerFactory?.CreateLogger(this.GetType());
             _logger = loggerFactory?.CreateLogger(typeof(FeignClientProxyService));
-            ServiceDiscoveryHttpClientHandler serviceDiscoveryHttpClientHandler = new ServiceDiscoveryHttpClientHandler(serviceDiscovery, this, feignClientPipeline, distributedCache, _logger);
+            ServiceDiscoveryHttpClientHandler serviceDiscoveryHttpClientHandler = new ServiceDiscoveryHttpClientHandler(serviceDiscovery, this, globalFeignClientPipeline, distributedCache, _logger);
             serviceDiscoveryHttpClientHandler.ShouldResolveService = string.IsNullOrWhiteSpace(Url);
             serviceDiscoveryHttpClientHandler.AllowAutoRedirect = false;
             _httpClient = new HttpClient(serviceDiscoveryHttpClientHandler);

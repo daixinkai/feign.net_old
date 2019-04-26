@@ -33,22 +33,41 @@ namespace Feign.TestWeb
             services.AddFeignClients(options =>
             {
                 options.Lifetime = ServiceLifetime.Scoped;
-                options.FeignClientPipeline.BuildingRequest += FeignClientPipeline_BuildingRequest;
+                options.FeignClientPipeline.Authorization(proxy =>
+                {
+                    return ("global", "asdasd");
+                });
+                //options.FeignClientPipeline.BuildingRequest += FeignClientPipeline_BuildingRequest;
+                options.FeignClientPipeline.Service("yun-platform-service-provider").BuildingRequest += (sender, e) =>
+                {
+                    if (!e.Headers.ContainsKey("Authorization"))
+                    {
+                        e.Headers["Authorization"] = "service asdasd";
+                    }
+                    e.Headers["Accept-Encoding"] = "gzip, deflate, br";
+                };
+
+                options.FeignClientPipeline.Service("yun-platform-service-provider").Authorization(proxy =>
+                {
+                    return ("service", "asdasd");
+                });
+
                 options.FeignClientPipeline.SendingRequest += FeignClientPipeline_SendingRequest;
             })
             //.AddDiscoveryClient();
             ;
         }
 
-        private void FeignClientPipeline_BuildingRequest(object sender, Proxy.BuildingRequestEventArgs e)
+        private void FeignClientPipeline_SendingRequest(object sender, SendingRequestEventArgs e)
         {
-            e.Headers["Authorization"] = "test asdasd";
-            e.Headers["Accept-Encoding"] = "gzip, deflate, br";
+
         }
 
-        private void FeignClientPipeline_SendingRequest(object sender, Proxy.SendingRequestEventArgs e)
+        static void Test()
         {
-
+            string s = "";
+            s.Replace("", "");
+            return;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

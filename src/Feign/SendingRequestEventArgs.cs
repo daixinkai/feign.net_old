@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 
-namespace Feign.Proxy
+namespace Feign
 {
     public sealed class SendingRequestEventArgs : EventArgs
     {
@@ -12,6 +12,6 @@ namespace Feign.Proxy
             RequestMessage = requestMessage;
         }
         public HttpRequestMessage RequestMessage { get; }
-        public IFeignClientProxy FeignClientProxy { get; set; }
+        public IFeignClient FeignClient { get; set; }
     }
 }

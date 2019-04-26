@@ -1,6 +1,7 @@
 ﻿using Feign;
 using Feign.Discovery;
 using Feign.Formatting;
+using Feign.Proxy;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
             feignBuilder.Services.TryAddSingleton<IServiceDiscovery, T>();
             return feignBuilder;
         }
+
 
     }
 }

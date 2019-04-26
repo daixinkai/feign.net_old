@@ -24,11 +24,19 @@ namespace Feign.Internal
         #region RequestParam
         public static string ReplaceRequestParam(string uri, string name, string value)
         {
-            string pattern = "(&?)" + name + "={" + name + "}(&?)([.^&]*)";
-            return Regex.Replace(uri, pattern, match =>
-             {
-                 return match.Value.Replace("{" + name + "}", value);
-             });
+            //string pattern = "(&?)" + name + "={" + name + "}(&?)([.^&]*)";
+            //return Regex.Replace(uri, pattern, match =>
+            // {
+            //     return match.Value.Replace("{" + name + "}", value);
+            // });
+            if (uri.IndexOf("?") >= 0)
+            {
+                return uri + $"&{name}={value}";
+            }
+            else
+            {
+                return uri + $"?{name}={value}";
+            }
         }
 
         public static string ReplaceRequestParam<T>(string uri, string name, T value)
