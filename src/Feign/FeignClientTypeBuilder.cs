@@ -24,7 +24,7 @@ namespace Feign
         string _guid;
         string _suffix;
 
-        IMethodBuilder _methodBuilder;
+        FeignClientProxyServiceEmitMethodBuilder _methodBuilder;
 
         public Type BuildType(Type interfaceType)
         {
@@ -45,9 +45,7 @@ namespace Feign
                 //build body
                 if (!method.IsDefined(typeof(RequestMappingBaseAttribute)))
                 {
-                    ILGenerator iLGenerator = methodBuilder.GetILGenerator();
-                    iLGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(Type.EmptyTypes));
-                    iLGenerator.Emit(OpCodes.Throw);
+                    BuildMethodBodyWithoutRequestMapping(method, methodBuilder);
                     continue;
                 }
                 _methodBuilder.BuildMethod(method, methodBuilder);
@@ -56,6 +54,41 @@ namespace Feign
             Type type = typeInfo.AsType();
             return type;
         }
+
+
+        void BuildMethodBodyWithoutRequestMapping(MethodInfo method, MethodBuilder methodBuilder)
+        {
+            string methodName = method.Name.ToLower();
+
+            if (methodName.StartsWith("get") || methodName.StartsWith("query"))
+            {
+                //get
+                _methodBuilder.BuildMethod(method, methodBuilder, new GetMappingAttribute());
+                return;
+            }
+            else if (methodName.StartsWith("post") || methodName.StartsWith("create"))
+            {
+                //post
+                _methodBuilder.BuildMethod(method, methodBuilder, new PostMappingAttribute());
+                return;
+            }
+            else if (methodName.StartsWith("put") || methodName.StartsWith("update"))
+            {
+                //put
+                _methodBuilder.BuildMethod(method, methodBuilder, new PutMappingAttribute());
+                return;
+            }
+            else if (methodName.StartsWith("delete") || methodName.StartsWith("remove"))
+            {
+                //delete
+                _methodBuilder.BuildMethod(method, methodBuilder, new DeleteMappingAttribute());
+                return;
+            }
+            ILGenerator iLGenerator = methodBuilder.GetILGenerator();
+            iLGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(Type.EmptyTypes));
+            iLGenerator.Emit(OpCodes.Throw);
+        }
+
 
 
 

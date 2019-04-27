@@ -20,12 +20,21 @@ namespace Feign.Reflection
 
         public void BuildMethod(MethodInfo method, MethodBuilder methodBuilder)
         {
+            BuildMethod(method, methodBuilder, method.GetCustomAttribute<RequestMappingBaseAttribute>());
+        }
 
+        public void BuildMethod(MethodInfo method, MethodBuilder methodBuilder, RequestMappingBaseAttribute requestMapping)
+        {
             ILGenerator iLGenerator = methodBuilder.GetILGenerator();
 
-            RequestMappingBaseAttribute requestMapping = method.GetCustomAttribute<RequestMappingBaseAttribute>();
+            if (requestMapping == null)
+            {
+                iLGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(Type.EmptyTypes));
+                iLGenerator.Emit(OpCodes.Throw);
+                return;
+            }
 
-            string uri = requestMapping.Value;
+            string uri = requestMapping.Value ?? "";
 
             LocalBuilder local_Uri = iLGenerator.DeclareLocal(typeof(string));
             LocalBuilder local_OldValue = iLGenerator.DeclareLocal(typeof(string));
@@ -115,7 +124,6 @@ namespace Feign.Reflection
             }
 
             iLGenerator.Emit(OpCodes.Ret);
-
         }
 
         MethodInfo GetInvokeMethod(MethodInfo method, RequestMappingBaseAttribute requestMapping)
