@@ -16,8 +16,12 @@ namespace Feign.TestWeb
         Task<JObject> GetValueAsync([PathVariable]int id, [RequestParam] string test);
         [GetMapping("/{id}")]
         Task<JObject> GetValueAsync([PathVariable]int id, [RequestQuery] TestServiceParam param);
+        [RequestMapping("/{id}")]
+        void GetValueVoidAsync([PathVariable]int id, [RequestParam] string test, [RequestQuery] TestServiceParam param);
+
         [GetMapping("/{id}")]
-        void GetValueAsync([PathVariable]int id, [RequestParam] string test, [RequestQuery] TestServiceParam param);  
+        Task<JObject> GetValueAsync([PathVariable]int id, [RequestParam] string test, [RequestQuery] TestServiceParam param);
+
     }
 
 

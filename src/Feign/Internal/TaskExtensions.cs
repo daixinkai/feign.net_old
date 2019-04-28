@@ -9,6 +9,10 @@ namespace Feign.Internal
     {
         public static TResult GetResult<TResult>(this Task<TResult> task)
         {
+            if (task.IsCompleted)
+            {
+                return task.Result;
+            }
             return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }

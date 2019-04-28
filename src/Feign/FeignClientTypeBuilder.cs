@@ -60,13 +60,13 @@ namespace Feign
         {
             string methodName = method.Name.ToLower();
 
-            if (methodName.StartsWith("get") || methodName.StartsWith("query"))
+            if (methodName.StartsWith("get") || methodName.StartsWith("query") || methodName.StartsWith("select"))
             {
                 //get
                 _methodBuilder.BuildMethod(method, methodBuilder, new GetMappingAttribute());
                 return;
             }
-            else if (methodName.StartsWith("post") || methodName.StartsWith("create"))
+            else if (methodName.StartsWith("post") || methodName.StartsWith("create") || methodName.StartsWith("insert"))
             {
                 //post
                 _methodBuilder.BuildMethod(method, methodBuilder, new PostMappingAttribute());

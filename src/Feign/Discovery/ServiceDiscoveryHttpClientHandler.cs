@@ -35,20 +35,23 @@ namespace Feign.Discovery
 
         public bool ShouldResolveService { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var current = request.RequestUri;
+            ServiceFeignClientPipelineBuilder serviceFeignClientPipeline = _globalFeignClientPipeline?.GetServicePipeline(_feignClient.ServiceId);
             try
             {
 
-                BuildingRequestEventArgs buildingArgs = new BuildingRequestEventArgs(request.Method.ToString(), request.RequestUri, new Dictionary<string, string>())
-                {
-                    FeignClient = _feignClient
-                };
-
                 #region BuildingRequest
-                _globalFeignClientPipeline?.GetServicePipeline(_feignClient.ServiceId)?.OnBuildingRequest(_feignClient, buildingArgs);
+                BuildingRequestEventArgs buildingArgs = new BuildingRequestEventArgs(_feignClient, request.Method.ToString(), request.RequestUri, new Dictionary<string, string>());
+
+                serviceFeignClientPipeline?.OnBuildingRequest(_feignClient, buildingArgs);
                 _globalFeignClientPipeline?.OnBuildingRequest(_feignClient, buildingArgs);
                 //request.Method = new HttpMethod(buildingArgs.Method);
                 request.RequestUri = buildingArgs.RequestUri;
@@ -62,14 +65,18 @@ namespace Feign.Discovery
                 #endregion
                 request.RequestUri = LookupService(request.RequestUri);
                 #region SendingRequest
-                SendingRequestEventArgs sendingArgs = new SendingRequestEventArgs(request)
-                {
-                    FeignClient = _feignClient
-                };
-                _globalFeignClientPipeline?.GetServicePipeline(_feignClient.ServiceId)?.OnSendingRequest(_feignClient, sendingArgs);
+                SendingRequestEventArgs sendingArgs = new SendingRequestEventArgs(_feignClient, request);
+                serviceFeignClientPipeline?.OnSendingRequest(_feignClient, sendingArgs);
                 _globalFeignClientPipeline?.OnSendingRequest(_feignClient, sendingArgs);
                 request = sendingArgs.RequestMessage;
                 #endregion
+
+                #region CannelRequest
+                CancelRequestEventArgs cancelArgs = new CancelRequestEventArgs(_feignClient, cancellationToken);
+                serviceFeignClientPipeline?.OnCancelRequest(_feignClient, cancelArgs);
+                _globalFeignClientPipeline?.OnCancelRequest(_feignClient, cancelArgs);
+                #endregion
+
                 return await base.SendAsync(request, cancellationToken);
             }
             catch (Exception e)

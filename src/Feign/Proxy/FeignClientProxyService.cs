@@ -19,6 +19,7 @@ namespace Feign.Proxy
         {
             //_logger = loggerFactory?.CreateLogger(this.GetType());
             _logger = loggerFactory?.CreateLogger(typeof(FeignClientProxyService));
+            _globalFeignClientPipeline = globalFeignClientPipeline as GlobalFeignClientPipelineBuilder; ;
             ServiceDiscoveryHttpClientHandler serviceDiscoveryHttpClientHandler = new ServiceDiscoveryHttpClientHandler(serviceDiscovery, this, globalFeignClientPipeline, distributedCache, _logger);
             serviceDiscoveryHttpClientHandler.ShouldResolveService = string.IsNullOrWhiteSpace(Url);
             serviceDiscoveryHttpClientHandler.AllowAutoRedirect = false;
@@ -60,6 +61,8 @@ namespace Feign.Proxy
         string _baseUrl;
 
         ILogger _logger;
+
+        GlobalFeignClientPipelineBuilder _globalFeignClientPipeline;
 
         HttpClient _httpClient;
 
@@ -135,15 +138,13 @@ namespace Feign.Proxy
         #region get
         protected TResult Get<TResult>(string uri)
         {
-            HttpResponseMessage response = _httpClient.GetAsync(BuildUri(uri)).GetResult();
-            EnsureSuccess(response);
+            HttpResponseMessage response = GetResponseMessage(() => _httpClient.GetAsync(BuildUri(uri)).GetResult());
             return GetResult<TResult>(response);
         }
 
         protected async Task<TResult> GetAsync<TResult>(string uri)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(BuildUri(uri));
-            EnsureSuccess(response);
+            HttpResponseMessage response = await GetResponseMessageAsync(() => _httpClient.GetAsync(BuildUri(uri))); ;
             return await GetResultAsync<TResult>(response);
         }
         #endregion
@@ -154,7 +155,6 @@ namespace Feign.Proxy
             using (HttpContent httpContent = new ObjectStringContent(value))
             {
                 HttpResponseMessage response = PostMessage(_httpClient, BuildUri(uri), value);
-                EnsureSuccess(response);
                 return GetResult<TResult>(response);
             }
         }
@@ -164,32 +164,31 @@ namespace Feign.Proxy
             using (HttpContent httpContent = new ObjectStringContent(value))
             {
                 HttpResponseMessage response = await PostMessageAsync(_httpClient, BuildUri(uri), value);
-                EnsureSuccess(response);
                 return await GetResultAsync<TResult>(response);
             }
         }
 
-        static HttpResponseMessage PostMessage(HttpClient httpClient, string uri, object value)
+        HttpResponseMessage PostMessage(HttpClient httpClient, string uri, object value)
         {
             if (value is HttpContent)
             {
-                return httpClient.PostAsync(uri, (HttpContent)value).GetResult();
+                return GetResponseMessage(() => httpClient.PostAsync(uri, (HttpContent)value).GetResult());
             }
             else
             {
-                return httpClient.PostAsync(uri, new ObjectContent(value)).GetResult();
+                return GetResponseMessage(() => httpClient.PostAsync(uri, new ObjectContent(value)).GetResult());
             }
         }
 
-        async static Task<HttpResponseMessage> PostMessageAsync(HttpClient httpClient, string uri, object value)
+        Task<HttpResponseMessage> PostMessageAsync(HttpClient httpClient, string uri, object value)
         {
             if (value is HttpContent)
             {
-                return await httpClient.PostAsync(uri, (HttpContent)value);
+                return GetResponseMessageAsync(() => httpClient.PostAsync(uri, (HttpContent)value));
             }
             else
             {
-                return await httpClient.PostAsync(uri, new ObjectContent(value));
+                return GetResponseMessageAsync(() => httpClient.PostAsync(uri, new ObjectContent(value)));
             }
         }
 
@@ -201,7 +200,6 @@ namespace Feign.Proxy
             using (HttpContent httpContent = new ObjectStringContent(value))
             {
                 HttpResponseMessage response = PutMessage(_httpClient, BuildUri(uri), value);
-                EnsureSuccess(response);
                 return GetResult<TResult>(response);
             }
         }
@@ -211,32 +209,31 @@ namespace Feign.Proxy
             using (HttpContent httpContent = new ObjectStringContent(value))
             {
                 HttpResponseMessage response = await PutMessageAsync(_httpClient, BuildUri(uri), value);
-                EnsureSuccess(response);
                 return await GetResultAsync<TResult>(response);
             }
         }
 
-        static HttpResponseMessage PutMessage(HttpClient httpClient, string uri, object value)
+        HttpResponseMessage PutMessage(HttpClient httpClient, string uri, object value)
         {
             if (value is HttpContent)
             {
-                return httpClient.PutAsync(uri, (HttpContent)value).GetResult();
+                return GetResponseMessage(() => httpClient.PutAsync(uri, (HttpContent)value).GetResult());
             }
             else
             {
-                return httpClient.PutAsync(uri, new ObjectContent(value)).GetResult();
+                return GetResponseMessage(() => httpClient.PutAsync(uri, new ObjectContent(value)).GetResult());
             }
         }
 
-        async static Task<HttpResponseMessage> PutMessageAsync(HttpClient httpClient, string uri, object value)
+        Task<HttpResponseMessage> PutMessageAsync(HttpClient httpClient, string uri, object value)
         {
             if (value is HttpContent)
             {
-                return await httpClient.PostAsync(uri, (HttpContent)value);
+                return GetResponseMessageAsync(() => httpClient.PostAsync(uri, (HttpContent)value));
             }
             else
             {
-                return await httpClient.PostAsync(uri, new ObjectContent(value));
+                return GetResponseMessageAsync(() => httpClient.PostAsync(uri, new ObjectContent(value)));
             }
         }
 
@@ -245,18 +242,64 @@ namespace Feign.Proxy
         #region delete
         protected TResult Delete<TResult>(string uri)
         {
-            HttpResponseMessage response = _httpClient.DeleteAsync(BuildUri(uri)).GetResult();
-            EnsureSuccess(response);
+            HttpResponseMessage response = GetResponseMessage(() => _httpClient.DeleteAsync(BuildUri(uri)).GetResult());
             return GetResult<TResult>(response);
         }
 
         protected async Task<TResult> DeleteAsync<TResult>(string uri)
         {
-            HttpResponseMessage response = await _httpClient.DeleteAsync(BuildUri(uri));
-            EnsureSuccess(response);
+            HttpResponseMessage response = await GetResponseMessageAsync(() => _httpClient.DeleteAsync(BuildUri(uri)));
             return await GetResultAsync<TResult>(response);
         }
         #endregion
+
+        HttpResponseMessage GetResponseMessage(Func<HttpResponseMessage> action)
+        {
+            try
+            {
+                return action();
+            }
+            catch (Exception ex)
+            {
+                #region ErrorRequest
+                ErrorRequestEventArgs errorArgs = new ErrorRequestEventArgs(this, ex);
+                _globalFeignClientPipeline.GetServicePipeline(this.ServiceId)?.OnErrorRequest(this, errorArgs);
+                if (!errorArgs.ExceptionHandled)
+                {
+                    _globalFeignClientPipeline?.OnErrorRequest(this, errorArgs);
+                }
+                if (errorArgs.ExceptionHandled)
+                {
+                    return null;
+                }
+                #endregion
+                throw;
+            }
+        }
+
+        async Task<HttpResponseMessage> GetResponseMessageAsync(Func<Task<HttpResponseMessage>> action)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                #region ErrorRequest
+                ErrorRequestEventArgs errorArgs = new ErrorRequestEventArgs(this, ex);
+                _globalFeignClientPipeline.GetServicePipeline(this.ServiceId)?.OnErrorRequest(this, errorArgs);
+                if (!errorArgs.ExceptionHandled)
+                {
+                    _globalFeignClientPipeline?.OnErrorRequest(this, errorArgs);
+                }
+                if (errorArgs.ExceptionHandled)
+                {
+                    return null;
+                }
+                #endregion
+                throw;
+            }
+        }
 
         void EnsureSuccess(HttpResponseMessage responseMessage)
         {
@@ -269,11 +312,39 @@ namespace Feign.Proxy
 
         TResult GetResult<TResult>(HttpResponseMessage responseMessage)
         {
+            if (responseMessage == null)
+            {
+                return default(TResult);
+            }
+            #region ReceivingResponse
+            ReceivingResponseEventArgs<TResult> receivingResponseEventArgs = new ReceivingResponseEventArgs<TResult>(this, responseMessage);
+            _globalFeignClientPipeline?.GetServicePipeline(this.ServiceId)?.OnReceivingResponse(this, receivingResponseEventArgs);
+            _globalFeignClientPipeline?.OnReceivingResponse(this, receivingResponseEventArgs);
+            if (receivingResponseEventArgs.Result != null)
+            {
+                return (TResult)receivingResponseEventArgs.Result;
+            }
+            #endregion
+            EnsureSuccess(responseMessage);
             return Newtonsoft.Json.JsonConvert.DeserializeObject<TResult>(responseMessage.Content.ReadAsStringAsync().GetResult());
         }
 
         async Task<TResult> GetResultAsync<TResult>(HttpResponseMessage responseMessage)
         {
+            if (responseMessage == null)
+            {
+                return default(TResult);
+            }
+            #region ReceivingResponse
+            ReceivingResponseEventArgs<TResult> receivingResponseEventArgs = new ReceivingResponseEventArgs<TResult>(this, responseMessage);
+            _globalFeignClientPipeline?.GetServicePipeline(this.ServiceId)?.OnReceivingResponse(this, receivingResponseEventArgs);
+            _globalFeignClientPipeline?.OnReceivingResponse(this, receivingResponseEventArgs);
+            if (receivingResponseEventArgs.Result != null)
+            {
+                return (TResult)receivingResponseEventArgs.Result;
+            }
+            #endregion
+            EnsureSuccess(responseMessage);
             return Newtonsoft.Json.JsonConvert.DeserializeObject<TResult>(await responseMessage.Content.ReadAsStringAsync());
         }
 

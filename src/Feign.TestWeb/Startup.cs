@@ -53,6 +53,30 @@ namespace Feign.TestWeb
                 });
 
                 options.FeignClientPipeline.SendingRequest += FeignClientPipeline_SendingRequest;
+
+
+                options.FeignClientPipeline.Service("yun-platform-service-provider").ReceivingResponse += (sender, e) =>
+                {
+
+                };
+
+                options.FeignClientPipeline.ReceivingResponse += (sender, e) =>
+                {
+
+                };
+
+                options.FeignClientPipeline.CancelRequest += (sender, e) =>
+                {
+                    e.CancellationToken.Register((state) =>
+                    {
+
+                    }, sender);
+                };
+                options.FeignClientPipeline.ErrorRequest += (sender, e) =>
+                {
+                    Exception exception = e.Exception;
+                    e.ExceptionHandled = true;
+                };
             })
             //.AddDiscoveryClient();
             ;
