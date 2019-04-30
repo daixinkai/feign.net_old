@@ -4,15 +4,13 @@ using System.Text;
 
 namespace Feign
 {
-    public sealed class ErrorRequestEventArgs : EventArgs
+    public sealed class ErrorRequestEventArgs : FeignClientEventArgs
     {
-        internal ErrorRequestEventArgs(IFeignClient feignClient, Exception exception)
+        internal ErrorRequestEventArgs(IFeignClient feignClient, Exception exception) : base(feignClient)
         {
             Exception = exception;
-            FeignClient = feignClient;
         }
         public Exception Exception { get; }
         public bool ExceptionHandled { get; set; }
-        public IFeignClient FeignClient { get; }
     }
 }

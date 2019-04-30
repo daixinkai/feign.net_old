@@ -15,12 +15,13 @@ namespace Feign.Proxy
     public abstract class FeignClientProxyService : IFeignClient, IDisposable
     {
 
-        public FeignClientProxyService(IServiceDiscovery serviceDiscovery, IGlobalFeignClientPipelineBuilder globalFeignClientPipeline, IDistributedCache distributedCache, ILoggerFactory loggerFactory)
+        public FeignClientProxyService(FeignOptions feignOptions, IServiceDiscovery serviceDiscovery, IDistributedCache distributedCache, ILoggerFactory loggerFactory)
         {
             //_logger = loggerFactory?.CreateLogger(this.GetType());
+            _feignOptions = feignOptions;
             _logger = loggerFactory?.CreateLogger(typeof(FeignClientProxyService));
-            _globalFeignClientPipeline = globalFeignClientPipeline as GlobalFeignClientPipelineBuilder; ;
-            ServiceDiscoveryHttpClientHandler serviceDiscoveryHttpClientHandler = new ServiceDiscoveryHttpClientHandler(serviceDiscovery, this, globalFeignClientPipeline, distributedCache, _logger);
+            _globalFeignClientPipeline = _feignOptions?.FeignClientPipeline as GlobalFeignClientPipelineBuilder; ;
+            ServiceDiscoveryHttpClientHandler serviceDiscoveryHttpClientHandler = new ServiceDiscoveryHttpClientHandler(serviceDiscovery, this, _globalFeignClientPipeline, distributedCache, _logger);
             serviceDiscoveryHttpClientHandler.ShouldResolveService = string.IsNullOrWhiteSpace(Url);
             serviceDiscoveryHttpClientHandler.AllowAutoRedirect = false;
             _httpClient = new HttpClient(serviceDiscoveryHttpClientHandler);
@@ -63,6 +64,8 @@ namespace Feign.Proxy
         ILogger _logger;
 
         GlobalFeignClientPipelineBuilder _globalFeignClientPipeline;
+
+        FeignOptions _feignOptions;
 
         HttpClient _httpClient;
 
@@ -353,22 +356,22 @@ namespace Feign.Proxy
 
 
         #region PathVariable
-        protected static string ReplacePathVariable<T>(string uri, string name, T value)
+        protected string ReplacePathVariable<T>(string uri, string name, T value)
         {
-            return FeignClientUtils.ReplacePathVariable<T>(uri, name, value);
+            return FeignClientUtils.ReplacePathVariable<T>(_feignOptions.Converters, uri, name, value);
         }
         #endregion
 
         #region RequestParam
-        protected static string ReplaceRequestParam<T>(string uri, string name, T value)
+        protected string ReplaceRequestParam<T>(string uri, string name, T value)
         {
-            return FeignClientUtils.ReplaceRequestParam<T>(uri, name, value);
+            return FeignClientUtils.ReplaceRequestParam<T>(_feignOptions.Converters, uri, name, value);
         }
         #endregion
         #region RequestQuery
-        protected static string ReplaceRequestQuery<T>(string uri, string name, T value)
+        protected string ReplaceRequestQuery<T>(string uri, string name, T value)
         {
-            return FeignClientUtils.ReplaceRequestQuery<T>(uri, name, value);
+            return FeignClientUtils.ReplaceRequestQuery<T>(_feignOptions.Converters, uri, name, value);
         }
         #endregion
 

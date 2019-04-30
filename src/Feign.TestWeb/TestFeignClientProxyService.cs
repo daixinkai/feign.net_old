@@ -12,7 +12,7 @@ namespace Feign.TestWeb
 {
     public class TestFeignClientProxyService : FeignClientProxyService
     {
-        public TestFeignClientProxyService(IServiceDiscovery serviceDiscovery, IGlobalFeignClientPipelineBuilder globalFeignClientPipeline, IDistributedCache distributedCache, ILoggerFactory loggerFactory) : base(serviceDiscovery, globalFeignClientPipeline, distributedCache, loggerFactory)
+        public TestFeignClientProxyService(FeignOptions feignOptions, IServiceDiscovery serviceDiscovery, IDistributedCache distributedCache, ILoggerFactory loggerFactory) : base(feignOptions, serviceDiscovery, distributedCache, loggerFactory)
         {
 
         }

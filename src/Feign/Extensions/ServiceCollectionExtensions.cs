@@ -33,23 +33,25 @@ namespace Microsoft.Extensions.DependencyInjection
                 options = new FeignOptions();
             }
 
-            FeignBuilder.Instance.Services = services;
-            FeignBuilder.Instance.Options = options;
+            FeignBuilder feignBuilder = new FeignBuilder();
+
+            feignBuilder.Services = services;
+            feignBuilder.Options = options;
 
             if (options.Assemblies.Count == 0)
             {
-                AddFeignClients(FeignBuilder.Instance.FeignClientTypeBuilder, services, Assembly.GetEntryAssembly(), options.Lifetime);
+                AddFeignClients(feignBuilder.FeignClientTypeBuilder, services, Assembly.GetEntryAssembly(), options.Lifetime);
             }
             else
             {
                 foreach (var assembly in options.Assemblies)
                 {
-                    AddFeignClients(FeignBuilder.Instance.FeignClientTypeBuilder, services, assembly, options.Lifetime);
+                    AddFeignClients(feignBuilder.FeignClientTypeBuilder, services, assembly, options.Lifetime);
                 }
             }
-            services.TryAddSingleton(options.FeignClientPipeline);
-            FeignBuilder.Instance.FeignClientTypeBuilder.FinishBuild();
-            return FeignBuilder.Instance;
+            services.TryAddSingleton(options);
+            feignBuilder.FeignClientTypeBuilder.FinishBuild();
+            return feignBuilder;
         }
 
         static void AddFeignClients(FeignClientTypeBuilder feignClientTypeBuilder, IServiceCollection services, Assembly assembly, ServiceLifetime lifetime)

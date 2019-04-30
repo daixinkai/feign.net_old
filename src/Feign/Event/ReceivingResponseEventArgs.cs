@@ -5,16 +5,14 @@ using System.Text;
 
 namespace Feign
 {
-    public class ReceivingResponseEventArgs : EventArgs
+    public class ReceivingResponseEventArgs : FeignClientEventArgs
     {
-        internal ReceivingResponseEventArgs(IFeignClient feignClient, HttpResponseMessage responseMessage, Type resultType)
+        internal ReceivingResponseEventArgs(IFeignClient feignClient, HttpResponseMessage responseMessage, Type resultType) : base(feignClient)
         {
             ResponseMessage = responseMessage;
-            FeignClient = feignClient;
             ResultType = resultType;
         }
         public HttpResponseMessage ResponseMessage { get; }
-        public IFeignClient FeignClient { get; }
 
         public Type ResultType { get; }
 

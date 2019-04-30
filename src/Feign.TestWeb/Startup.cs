@@ -62,6 +62,18 @@ namespace Feign.TestWeb
 
                 options.FeignClientPipeline.ReceivingResponse += (sender, e) =>
                 {
+                    if (!typeof(QueryResult).IsAssignableFrom(e.ResultType))
+                    {
+                        return;
+                    }
+                    if (e.ResultType == typeof(QueryResult))
+                    {
+                        e.Result = new QueryResult()
+                        {
+                            StatusCode = e.ResponseMessage.StatusCode
+                        };
+                        return;
+                    }
 
                 };
 

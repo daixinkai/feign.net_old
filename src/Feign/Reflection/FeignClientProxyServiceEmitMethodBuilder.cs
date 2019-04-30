@@ -12,11 +12,11 @@ namespace Feign.Reflection
     class FeignClientProxyServiceEmitMethodBuilder : IMethodBuilder
     {
 
-        static readonly MethodInfo _replacePathVariableMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplacePathVariable");
+        static readonly MethodInfo _replacePathVariableMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplacePathVariable");
 
-        static readonly MethodInfo _replaceRequestParamMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplaceRequestParam");
+        static readonly MethodInfo _replaceRequestParamMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplaceRequestParam");
 
-        static readonly MethodInfo _replaceRequestQueryMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplaceRequestQuery");
+        static readonly MethodInfo _replaceRequestQueryMethod = typeof(FeignClientProxyService).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).FirstOrDefault(o => o.IsGenericMethod && o.Name == "ReplaceRequestQuery");
 
         public void BuildMethod(MethodInfo method, MethodBuilder methodBuilder)
         {
@@ -84,6 +84,7 @@ namespace Feign.Reflection
 
                 iLGenerator.Emit(OpCodes.Ldstr, name);
                 iLGenerator.Emit(OpCodes.Stloc, local_OldValue);
+                iLGenerator.Emit(OpCodes.Ldarg_0);
                 iLGenerator.Emit(OpCodes.Ldloc, local_Uri);
                 iLGenerator.Emit(OpCodes.Ldloc, local_OldValue);
                 iLGenerator.Emit(OpCodes.Ldarg_S, index);

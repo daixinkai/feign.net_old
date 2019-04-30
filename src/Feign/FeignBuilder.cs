@@ -14,8 +14,6 @@ namespace Feign
             FeignClientTypeBuilder = new FeignClientTypeBuilder();
         }
 
-        public static readonly FeignBuilder Instance = new FeignBuilder();
-
         public ConverterCollection Converters { get { return Options?.Converters; } }
 
         public FeignOptions Options { get; set; }

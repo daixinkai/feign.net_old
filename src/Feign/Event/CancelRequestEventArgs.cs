@@ -5,14 +5,12 @@ using System.Threading;
 
 namespace Feign
 {
-    public sealed class CancelRequestEventArgs : EventArgs
+    public sealed class CancelRequestEventArgs : FeignClientEventArgs
     {
-        internal CancelRequestEventArgs(IFeignClient feignClient, CancellationToken cancellationToken)
+        internal CancelRequestEventArgs(IFeignClient feignClient, CancellationToken cancellationToken) : base(feignClient)
         {
             CancellationToken = cancellationToken;
-            FeignClient = feignClient;
         }
         public CancellationToken CancellationToken { get; }
-        public IFeignClient FeignClient { get; }
     }
 }

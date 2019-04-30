@@ -5,14 +5,12 @@ using System.Text;
 
 namespace Feign
 {
-    public sealed class SendingRequestEventArgs : EventArgs
+    public sealed class SendingRequestEventArgs : FeignClientEventArgs
     {
-        internal SendingRequestEventArgs(IFeignClient feignClient, HttpRequestMessage requestMessage)
+        internal SendingRequestEventArgs(IFeignClient feignClient, HttpRequestMessage requestMessage) : base(feignClient)
         {
             RequestMessage = requestMessage;
-            FeignClient = feignClient;
         }
         public HttpRequestMessage RequestMessage { get; }
-        public IFeignClient FeignClient { get; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Feign.Formatting;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -15,9 +16,9 @@ namespace Feign.Internal
             return uri.Replace(name, value);
         }
 
-        public static string ReplacePathVariable<T>(string uri, string name, T value)
+        public static string ReplacePathVariable<T>(ConverterCollection converters, string uri, string name, T value)
         {
-            return ReplacePathVariable(uri, name, ConvertValue<T, string>(value, true));
+            return ReplacePathVariable(uri, name, ConvertValue<T, string>(converters, value, true));
         }
         #endregion
 
@@ -39,9 +40,9 @@ namespace Feign.Internal
             }
         }
 
-        public static string ReplaceRequestParam<T>(string uri, string name, T value)
+        public static string ReplaceRequestParam<T>(ConverterCollection converters, string uri, string name, T value)
         {
-            return ReplaceRequestParam(uri, name, ConvertValue<T, string>(value, true));
+            return ReplaceRequestParam(uri, name, ConvertValue<T, string>(converters, value, true));
         }
         #endregion
 
@@ -57,7 +58,7 @@ namespace Feign.Internal
                 return uri + $"?{name}={value}";
             }
         }
-        public static string ReplaceRequestQuery<T>(string uri, string name, T value)
+        public static string ReplaceRequestQuery<T>(ConverterCollection converters, string uri, string name, T value)
         {
             var typeCode = Type.GetTypeCode(typeof(T));
             if (typeCode == TypeCode.Object)
@@ -83,22 +84,22 @@ namespace Feign.Internal
             }
             else
             {
-                return ReplaceRequestQuery(uri, name, ConvertValue<T, string>(value, true));
+                return ReplaceRequestQuery(uri, name, ConvertValue<T, string>(converters, value, true));
             }
         }
         #endregion
 
 
-        public static TResult ConvertValue<TSource, TResult>(TSource value, bool useDefault)
+        public static TResult ConvertValue<TSource, TResult>(ConverterCollection converters, TSource value, bool useDefault)
         {
-            var converter = FeignBuilder.Instance.Converters.FindConverter<TSource, TResult>();
+            var converter = converters.FindConverter<TSource, TResult>();
             if (converter == null)
             {
                 if (!useDefault)
                 {
                     return default(TResult);
                 }
-                return FeignBuilder.Instance.Converters.FindConverter<object, TResult>().Convert(value);
+                return converters.FindConverter<object, TResult>().Convert(value);
             }
             return converter.Convert(value);
         }
